@@ -34,7 +34,6 @@ pub struct Utxo {
     pub txid: String,
     pub vout: u32,
     pub address: Option<String>,
-    #[serde(rename = "scriptPubKey")]
     pub script_pub_key: String,
     pub amount: f64,
     pub confirmations: u64,
@@ -56,7 +55,6 @@ pub struct WalletTransactionStatus {
     pub confirmations: i64,
     pub amount: f64,
     pub fee: Option<f64>,
-    #[serde(rename = "blockhash")]
     pub block_hash: Option<String>,
 }
 
@@ -109,9 +107,7 @@ pub struct ConfirmationReport {
 pub struct BlockHeaderEvidence {
     pub hash: String,
     pub height: u64,
-    #[serde(rename = "previousblockhash")]
     pub previous_block_hash: Option<String>,
-    #[serde(rename = "merkleroot")]
     pub merkle_root: String,
     pub nonce: u64,
     pub difficulty: f64,

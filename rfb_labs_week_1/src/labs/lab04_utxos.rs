@@ -1,7 +1,7 @@
 //! Lab 04 — inspect UTXOs and outpoints.
 
 use crate::model::{OutPoint, Utxo};
-use crate::rpc::{parse_cli_value, RpcClient};
+use crate::rpc::{parse_cli_value, required_f64, required_string, required_u64, RpcClient};
 use crate::LabResult;
 
 /// Return all UTXOs tracked by the selected wallet.
@@ -12,10 +12,24 @@ pub fn list_unspent<C: RpcClient>(client: &C, wallet_name: &str) -> LabResult<Ve
         .as_array()
         .ok_or_else(|| crate::LabError::Parse("expected an array of UTXOs".to_owned()))?
         .iter()
-        .map(|v| {
-            serde_json::from_value(v.clone()).map_err(|e| crate::LabError::Parse(e.to_string()))
-        })
+        .map(utxo_from_value)
         .collect()
+}
+
+/// Bitcoin Core reports `listunspent` fields in camelCase; map them onto [`Utxo`] by hand.
+fn utxo_from_value(v: &serde_json::Value) -> LabResult<Utxo> {
+    Ok(Utxo {
+        txid: required_string(v, "txid")?,
+        vout: required_u64(v, "vout")? as u32,
+        address: v.get("address").and_then(|a| a.as_str()).map(str::to_owned),
+        script_pub_key: required_string(v, "scriptPubKey")?,
+        amount: required_f64(v, "amount")?,
+        confirmations: required_u64(v, "confirmations")?,
+        spendable: v
+            .get("spendable")
+            .and_then(|s| s.as_bool())
+            .ok_or(crate::LabError::MissingField("spendable"))?,
+    })
 }
 
 /// Select one spendable UTXO, preferring the one with the most confirmations.

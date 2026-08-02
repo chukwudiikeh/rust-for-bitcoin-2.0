@@ -1,7 +1,7 @@
 //! Lab 08 — inspect proof-linked headers and confirmation depth.
 
 use crate::model::{BlockHeaderEvidence, SecurityReport};
-use crate::rpc::{parse_cli_value, RpcClient};
+use crate::rpc::{parse_cli_value, required_f64, required_string, required_u64, RpcClient};
 use crate::LabResult;
 
 /// Decode a block header into the fields used by the lab.
@@ -11,7 +11,26 @@ pub fn get_block_header<C: RpcClient>(
 ) -> LabResult<BlockHeaderEvidence> {
     let raw = client.call(None, "getblockheader", &[block_hash.to_owned()])?;
     let value = parse_cli_value(&raw)?;
-    serde_json::from_value(value).map_err(|e| crate::LabError::Parse(e.to_string()))
+
+    // Bitcoin Core reports header fields in camelCase; map them onto
+    // `BlockHeaderEvidence` by hand.
+    Ok(BlockHeaderEvidence {
+        hash: required_string(&value, "hash")?,
+        height: required_u64(&value, "height")?,
+        previous_block_hash: value
+            .get("previousblockhash")
+            .and_then(|v| v.as_str())
+            .map(str::to_owned),
+        merkle_root: required_string(&value, "merkleroot")?,
+        nonce: required_u64(&value, "nonce")?,
+        difficulty: required_f64(&value, "difficulty")?,
+        bits: required_string(&value, "bits")?,
+        confirmations: value
+            .get("confirmations")
+            .and_then(|v| v.as_i64())
+            .ok_or(crate::LabError::MissingField("confirmations"))?,
+        chainwork: required_string(&value, "chainwork")?,
+    })
 }
 
 /// Mine an exact number of additional blocks and return their hashes.
