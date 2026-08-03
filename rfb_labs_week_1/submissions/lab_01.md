@@ -17,8 +17,13 @@ RPC methods called:
 running 4 tests
 test builds_verified_network_snapshot ... ok
 test reads_best_block_hash ... ok
+![alt text](image-3.png)
+
 test reads_block_height ... ok
+![alt text](image-2.png)
+
 test reads_regtest_chain ... ok
+![alt text](image-1.png)
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 ```
