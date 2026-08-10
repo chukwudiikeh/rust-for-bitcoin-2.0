@@ -51,56 +51,64 @@ impl Item {
 
 impl LoanTerms for MediaKind {
     fn loan_days(&self) -> u32 {
-       match self {
-        MediaKind::Book{..} => 21,
-        MediaKind::Audiobook{..} => 14,
-        MediaKInd::Ebook{..} => 7,
-       }
+        match self {
+            MediaKind::Book { .. } => 21,
+            MediaKind::Audiobook { .. } => 14,
+            MediaKind::Ebook { .. } => 7,
+        }
     }
 
     fn daily_late_fee_cents(&self) -> u32 {
         match self {
-        MediaKind::Book{..} => 25,
-        MediaKind::Audiobook{..} => 25,
-        MediaKind::Ebook{..} => 0,
-       }
+            MediaKind::Book { .. } => 25,
+            MediaKind::Audiobook { .. } => 25,
+            MediaKind::Ebook { .. } => 0,
+        }
     }
 }
 
 impl LoanTerms for Item {
     fn loan_days(&self) -> u32 {
-        self.kind.loan_day()
+        self.kind.loan_days()
     }
 
     fn daily_late_fee_cents(&self) -> u32 {
-       self.kind.daily_late_fee_cents
+        self.kind.daily_late_fee_cents()
     }
 }
 
 impl fmt::Display for MediaKind {
     fn fmt(&self, _formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-       match self {
-        MediaKind::Book{pages} => write!(_formatter, "Book ({pages} pages)"),
-        MediaKind::Audiobook{minutes} => write!(_formatter, "Audiobook ({minutes} minutes)"),
-        MediaKind::Ebook{size_kb} => write!(_formatter, "Ebook ({size_kb} kb)"),
-       }
+        match self {
+            MediaKind::Book { pages } => write!(_formatter, "Book ({pages} pages)"),
+            MediaKind::Audiobook { minutes } => write!(_formatter, "Audiobook ({minutes} minutes)"),
+            MediaKind::Ebook { size_kb } => write!(_formatter, "Ebook ({size_kb} kb)"),
+        }
     }
 }
 
 impl fmt::Display for LoanStatus {
     fn fmt(&self, _formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            LoanStatus::Available => write!(_formatter,"Available"),
-            LoanStatus::OnLoan{member_id,day_borrowed} => write!(_formatter,"On loan to member {member_id} since day {day_borrowed}"),
-            LoanStatus::Lost => write!(_formatter,"Lost"),
+            LoanStatus::Available => write!(_formatter, "Available"),
+            LoanStatus::OnLoan {
+                member_id,
+                day_borrowed,
+            } => write!(
+                _formatter,
+                "On loan to member {member_id} since day {day_borrowed}"
+            ),
+            LoanStatus::Lost => write!(_formatter, "Lost"),
         }
-       
     }
 }
 
 impl fmt::Display for Item {
     fn fmt(&self, _formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-     write!(_formatter,"This item has index No. {} , Title {} ,Author {}, Kind {} and has a Status of {}",self.id,self.title,self.author,self.kind,self.status)
+        write!(
+            _formatter,
+            "#{}: \"{}\" by {} ({}) — {}",
+            self.id, self.title, self.author, self.kind, self.status
+        )
     }
-
 }
