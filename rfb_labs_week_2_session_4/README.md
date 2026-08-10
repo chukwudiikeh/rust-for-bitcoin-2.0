@@ -60,3 +60,14 @@ search.
 ## Example output
 
 Paste the output of `cargo run` here once Part 8 is complete.
+
+## ASSIGNMENT ANSWERS
+1. Why is `LoanStatus` an enum rather than a `bool` plus two `Option` fields?
+
+    =Loan Status is not a struct of data types bool,Option<u32> and Option<u32> but an enum because a bool + 2 Options<u32> would construct an impossible combination,like loan = false while member_id = Some(100),claiming a book is both on the shelf and checked out to someone at the same time .The compiler has no way to catch that contradiction because the 3 fields aren't linked;they're just 3 independent boxes you could fill in inconsistently and an enum fixes this by attaching the extra data (member_id), (day_borrowed) only to the OnLoan variant Available and Lost simply have no fields to fill in incorrectly. this makes the invalid state - "available but also on loan" -impossible to even write down,not just something you have to remember not to do.
+
+    Because LoanStatus is an enum,matching on it is exhaustive the compiler requires every variant (Available,OnLoan {..}) to be handled, or an explicit _ fallback.This guarantees you can never accidnetally forget to handle one of the 3 states.(e.g forgetting what happens when an item is Lost).If a new variant is added later, the compiler will flag every match that needs updating,so nothing is silently skipped. 
+2. What does `match` force you to do when a fourth `MediaKind` is added later?
+
+
+    
